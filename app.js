@@ -9,7 +9,7 @@ app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({extended:true}));
 
 mongoose.Promise=global.Promise;
-mongoose.connect(process.env.MONGO_URL,{ useNewUrlParser: true }).then(()=>
+mongoose.connect(process.env.MONGO_URL,{useUnifiedTopology: true, useNewUrlParser: true }).then(()=>
     {console.log("DB is connected");}    
 ).catch((err)=>{
     console.log(err);
