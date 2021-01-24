@@ -24,12 +24,16 @@ mongoose.connect(process.env.MONGO_URL,{useUnifiedTopology: true, useNewUrlParse
 app.get('/',(req,res)=>{
     res.send("I have just started Node.js");
 });
-// app.get('/check',(req,res)=>{
-//     res.send("checking");
-// })
-const Port=3000;
+
+require('./routes/route')(app);
+
+app.use('*',(req,res,next)=>{
+    res.status(404).json({"msg":"Not found"});
+});
+
+const Port=process.env.PORT||3000;
 
 app.listen(Port,(err)=>{
     if(err) console.log(err);
-    else console.log(`port is live at ${Port}`)
+    else console.log(`port is live at ${Port}`);
 });

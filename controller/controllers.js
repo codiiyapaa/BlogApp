@@ -1,144 +1,104 @@
 const Blog=require('../model/model');
 
-exports.getall=async(req,res)=>{
+// find all blogs
+exports.getall=(req,res)=>{
+    
+    Blog.find()
+        .then((data)=>{
+            res.status(200).json(data);
+        })
+        .catch((err)=>{
+            if(err) res.status(500).json(err);
+        });
+    // let data;
+    // try {
+    //     data = await Blog.find();
+    //     console.log(data);
 
-    let data;
-    try {
-        data=await Blog.find();
-    } catch (error) {
-        if(error)
-        return res.status(500).json(error);
-        
-    }
-
-    res.status(200).json(data);
-
+    // } catch (err) {
+    //     if(err) return res.status(500).json(err);
+    // }
+    // res.status(200).json(data);
 }
 
-exports.getone = async (req,res)=>{
+// find single blog by id
+exports.getone=(req,res)=>{
 
-    let data;
+    Blog.findById(req.params.blogID)
+        .then((data)=>{
+            if(!data) return res.status(404).json({"mag":"Blog not found"});
+            res.status(200).json(data);
+        })
+        .catch((err)=>{
+            if(err) res.status(500).json(err);
+        })
 
-    // Blog.findById(req.params.blogId).exec((err,data)=>{
-    //     if(err || !data)
-    //     return res.status(400).json({
-    //         error:"this is the data not send"
-    //     });
-
-    //     res.json(data);
-
-    // })
-    try{
-        data = await Blog.findById(req.params.blogId);
-        
-    }catch(error)
-    {
-        if(error)
-        return res.status(400).json(error);
-    }
-    res.json(data);    
 }
-exports.getoneByTitle = async(req,res)=>{
-    
-    // Blog.findOne({title:req.params.blogTitle}).exec((err,data)=>{
-    //     if(err || !data)
-    //     return res.status(400).json({
-    //         error:"this is the data not send"
-    //     });
+//author 
+//title 
+//desc 
 
-    //     res.json(data);
 
-    // })
-    try{
-        data = await Blog.findOne({title:req.params.blogTitle});
-        
-    }catch(error)
-    {
-        if(error)
-        return res.status(400).json(error);
-    }
-    res.json(data);
-    
-}
-exports.getoneByAuthor = async(req,res)=>{
-    
-    try{
-        data = await Blog.findOne({author:req.params.blogAuthor});
-        
-    }catch(error)
-    {
-        if(error)
-        return res.status(400).json(error);
-    }
-    res.json(data);
-    
-}
+// create a blog
+exports.create=(req,res)=>{
 
-exports.create=async(req,res)=>{
     const newblog=new Blog({
         title:req.body.title,
         author:req.body.author,
         desc:req.body.desc
     });
-    // newblog.save().then((blog)=>{
-    //     res.status(201).json({"msg":"created","blog":blog});
-    // }).catch((err)=>{
-    //     if(err) return res.status(500).json(err);
-    // })
-
-    try{
-       await newblog.save();
-        
-    }catch(error)
-    {
-        if(error)
-        return res.status(400).json(error);
-    }
-    res.json({
-        "msg":"Created success"
-    });
+    //console.log(newblog);
+    
+    newblog.save().then((blog)=>{
+        res.status(201).json({"msg":"created","blog":blog});
+    }).catch((err)=>{
+        if(err) return res.status(500).json(err);
+    })
 }
 
-exports.updateone= async (req,res)=>{
+//to update a blog
 
-    if( !req.body.title|| !req.body.author|| !req.body.desc)
+exports.updateone=(req,res)=>{
+
+    if(!req.body.title||!req.body.desc||!req.body.author)
         return res.status(500).json({"msg":"fill all the fields"});
     
-    let blog;
-    try 
-    {
-            blog = await Blog.findByIdAndUpdate(req.params.blogId,{
-                title: req.body.title,
-                desc: req.body.desc},{new: true});
+    Blog.findByIdAndUpdate(req.params.blogID,{
+        title: req.body.title,
+        author:req.body.author,
+        desc:req.body.desc
+    },{new: true})
+        .then((data)=>{
 
-            if(!blog) return res.status(404).json({"msg":"not found"});
-    } 
-    catch (err) 
-    {
-        if(err) return res.status(500).json(err);
-    }
-    res.status(202).json({
-        "msg":"updated",
-        "doc":blog
-    });
-
+            if(!data) return res.status(404).json({"msg":"Not found"});
+            res.status(202).json({
+                "msg":"updated",
+                "doc":data
+            });
+        })
+        .catch((err)=>{
+            if(err) res.status(500).json(err)
+        })    
 }
-exports.deleteone= async (req,res)=>{
 
-    let blog;
-    try {
-        console.log(req.params.blogId);
-        blog = await Blog.findByIdAndDelete(req.params.blogId);
 
-            if(!blog) return res.status(404).json({"msg":"Blog not found"});
-        } 
-    catch (err) 
-    {
-        if(err) return res.status(500).json(err);
-    }
-    res.status(202).json({
-        "msg":"deleted",
-        "doc":blog
-    });
+// to delete a blog
+
+exports.deleteone=(req,res)=>{
+
+    Blog.findByIdAndDelete(req.params.blogID)
+        .then((data)=>{
+
+            if(!data) return res.status(404).json({"msg":"Blog not found"});
+
+            res.status(202).json({
+                "msg":"deleted",
+                "doc":data
+            });
+
+        })
+        .catch((err)=>{
+            if(err) res.status(500).json(err);
+        });
 
 }
